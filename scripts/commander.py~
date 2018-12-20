@@ -1,0 +1,51 @@
+#!/usr/bin/env python
+#encoding: utf8
+import rospy, os, socket
+from std_msgs.msg import String
+
+class JuliusReceiver:
+	def __init__(self): 
+		rate = rospy.Rate(10)
+		while not rospy.is_shutdown():
+			try:
+				self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+				self.sock.connect(("localhost", 10500))
+				break
+			except:
+				rate.sleep()
+
+		rospy.on_shutdown(self.sock.close)
+
+	def get_line(self):
+		line =""
+		while not rospy.is_shutdown():
+			v = self.sock.recv(1)
+			if v == '\n':
+				return line
+			line += v
+	
+	def get_command(self):
+		line = self.get_line()
+		command = ""
+		if "右" in line:
+			command = "Right"
+		elif "左" in line:
+			command = "Left"
+		elif "前" in line:
+			command = "Forward"
+		elif "後" in line:
+			command = "Back"
+		elif "     " in line:
+			command = "None"
+
+
+if __name__ == '__main__':
+	for i in range(100):	
+		pub = rospy.Publisher('commands', String, queue_size=10)
+		rospy.init_node("commander", anonymous=True)	
+		j = JuliusReceiver()
+		com = j.get_command()
+		pub.publish(com)
+		print com
+		
+		

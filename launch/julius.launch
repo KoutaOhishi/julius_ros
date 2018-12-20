@@ -1,0 +1,4 @@
+<launch>
+	<node pkg="julius_tutorials" name="julius" type="julius.py" />
+	<node pkg="julius_tutorials" name="julius_publisher" type="julius_publisher.py" output="screen" />
+</launch>
